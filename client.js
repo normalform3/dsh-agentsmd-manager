@@ -1,0 +1,86 @@
+window.__ModuleLoader__.load({
+  id: 'dsh-agentsmd-manager',
+  factory(require) {
+    const React = require('react');
+    const h = React.createElement;
+    const { useEffect, useMemo, useRef, useState } = React;
+    const API = '/api/dsh-agentsmd-manager/';
+    const copy = {
+      zh: { title:'AGENTS.md 管理', sub:'在一个位置管理所有工作区的指令文件', search:'搜索项目、路径或内容', global:'全局指令', templates:'模板', refresh:'刷新', noProjects:'尚无已注册工作区', noFiles:'这里还没有 AGENTS.md', newRoot:'新建根目录 AGENTS.md', edit:'编辑', preview:'预览', diff:'变更预览', save:'保存文件', saving:'保存中…', saved:'已保存', ai:'AI 帮我修改', prompt:'描述希望如何修改', generate:'生成建议', accept:'采用建议', discard:'放弃建议', model:'模型', sent:'将发送当前草稿、用户要求及可用的 README/项目清单到所选模型', templateName:'模板名称', templateBody:'模板内容', addTemplate:'保存模板', apply:'应用', replace:'替换全文', insert:'插入光标处', remove:'删除', cancel:'取消', back:'返回', empty:'未找到匹配内容', conflict:'文件已在外部修改，请刷新后重新比较。', original:'磁盘原文', proposed:'当前草稿', readOnly:'只读预览', missing:'文件尚不存在', choose:'选择一个工作区或文件', loading:'正在读取…' },
+      en: { title:'AGENTS.md Manager', sub:'Manage workspace instructions in one place', search:'Search projects, paths, or content', global:'Global instructions', templates:'Templates', refresh:'Refresh', noProjects:'No registered workspaces', noFiles:'No AGENTS.md files here', newRoot:'Create root AGENTS.md', edit:'Edit', preview:'Preview', diff:'Review changes', save:'Save file', saving:'Saving…', saved:'Saved', ai:'Edit with AI', prompt:'Describe the change you want', generate:'Generate suggestion', accept:'Use suggestion', discard:'Discard suggestion', model:'Model', sent:'The draft, your request, and available README/project manifests will be sent to the selected model', templateName:'Template name', templateBody:'Template content', addTemplate:'Save template', apply:'Apply', replace:'Replace entire file', insert:'Insert at cursor', remove:'Delete', cancel:'Cancel', back:'Back', empty:'No matching content', conflict:'This file changed outside the plugin. Refresh and compare before saving.', original:'On disk', proposed:'Current draft', readOnly:'Read-only preview', missing:'File does not exist yet', choose:'Choose a workspace or file', loading:'Loading…' }
+    };
+    const css = `
+      .am{height:100%;display:flex;flex-direction:column;color:var(--dsw-text-primary,#e7e7e7);background:var(--dsw-bg-primary,transparent);font:14px/1.5 system-ui,sans-serif}.am *{box-sizing:border-box}.am button,.am input,.am textarea,.am select{font:inherit}.am button{cursor:pointer}.am button:disabled{opacity:.5;cursor:not-allowed}.am button:focus-visible,.am input:focus-visible,.am textarea:focus-visible,.am select:focus-visible{outline:2px solid var(--dsw-color-primary,#7b8fff);outline-offset:2px}.am-head{padding:24px 30px 18px;border-bottom:1px solid var(--dsw-border,#5554);display:flex;justify-content:space-between;align-items:center;gap:20px}.am h1{font-size:22px;line-height:1.2;margin:0;font-weight:650;letter-spacing:-.025em}.am-sub{color:var(--dsw-text-secondary,#888);margin-top:5px}.am-main{min-height:0;flex:1;display:grid;grid-template-columns:275px minmax(0,1fr)}.am-rail{overflow:auto;border-right:1px solid var(--dsw-border,#5554);padding:18px 12px}.am-work{overflow:auto;padding:24px 30px}.am-search,.am-field,.am-text,.am select{width:100%;padding:10px 12px;border:1px solid var(--dsw-border,#6666);border-radius:10px;color:inherit;background:var(--dsw-bg-secondary,#222);}.am-search{margin-bottom:20px}.am-label{font-size:11px;text-transform:uppercase;letter-spacing:.11em;color:var(--dsw-text-secondary,#999);font-weight:700;margin:14px 10px 6px}.am-row{display:block;width:100%;border:0;text-align:left;background:transparent;color:inherit;border-radius:9px;padding:9px 11px}.am-row:hover{background:var(--dsw-bg-secondary,#8882)}.am-row.on{background:var(--dsw-bg-secondary,#8883);font-weight:600}.am-path{font-size:12px;color:var(--dsw-text-secondary,#999);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.am-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.am-btn{border:1px solid var(--dsw-border,#6666);border-radius:9px;padding:7px 12px;background:var(--dsw-bg-secondary,#8882);color:inherit}.am-btn.primary{background:var(--dsw-color-primary,#5d6fe5);color:white;border-color:transparent}.am-titlebar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px}.am-titlebar h2{font-size:18px;margin:0}.am-muted{color:var(--dsw-text-secondary,#999)}.am-files{max-width:760px}.am-file{border:1px solid var(--dsw-border,#6666);border-radius:12px;padding:14px 16px;margin:9px 0;display:flex;justify-content:space-between;gap:16px;align-items:center}.am-editor{display:flex;flex-direction:column;gap:13px;height:100%;min-height:420px}.am-text{min-height:350px;flex:1;resize:vertical;line-height:1.55;font-family:var(--dsh-code-font-family,ui-monospace,monospace)}.am-preview{border:1px solid var(--dsw-border,#6666);border-radius:12px;padding:20px;overflow:auto;min-height:280px;white-space:normal}.am-preview h1,.am-preview h2,.am-preview h3{margin:14px 0 8px}.am-preview p{margin:7px 0}.am-preview code,.am-preview pre{font-family:ui-monospace,monospace}.am-preview pre{white-space:pre-wrap;background:var(--dsw-bg-secondary,#8882);padding:12px;border-radius:8px}.am-diff{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:250px}.am-diff pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:55vh;overflow:auto;border:1px solid var(--dsw-border,#6666);padding:14px;border-radius:10px}.am-panel{border:1px solid var(--dsw-border,#6666);padding:16px;border-radius:12px;margin-top:14px;display:grid;gap:12px}.am-alert{padding:10px 12px;border-radius:9px;background:#b55a2522;color:var(--dsw-text-primary,#eee)}.am-empty{padding:32px 16px;color:var(--dsw-text-secondary,#999);text-align:center}.am-back{display:none}@media(max-width:760px){.am-head{padding:18px}.am-main{display:block}.am-rail,.am-work{height:100%}.am-work{padding:18px}.am-main.detail .am-rail{display:none}.am-main:not(.detail) .am-work{display:none}.am-back{display:inline-block}.am-diff{grid-template-columns:1fr}}
+    `;
+    async function api(route, body = {}) {
+      const response = await fetch(API + route, { method:'POST', cache:'no-store', headers:{ 'content-type':'application/json', 'x-dsh-agentsmd-manager':'1' }, body:JSON.stringify(body) });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || `HTTP ${response.status}`);
+      return data.data;
+    }
+    function md(text) {
+      const nodes=[]; let code=[];
+      String(text).split('\n').forEach((line,i)=>{
+        if (line.startsWith('```')) { if(code.length){nodes.push(h('pre',{key:i},code.join('\n')));code=[]} else code.push(''); return; }
+        if(code.length){code.push(line);return}
+        const heading=/^(#{1,3})\s+(.+)$/.exec(line);
+        if(heading){nodes.push(h('h'+heading[1].length,{key:i},heading[2]));return}
+        if(/^[-*]\s/.test(line)){nodes.push(h('p',{key:i},'• '+line.slice(2)));return}
+        nodes.push(h('p',{key:i},line||'\u00a0'));
+      });
+      return nodes;
+    }
+    function Icon() { return h('svg',{width:18,height:18,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.8},h('path',{d:'M5 3h10l4 4v14H5z M15 3v5h4 M8 12h8 M8 16h8'})); }
+    function Page() {
+      const lang=(document.documentElement.lang||navigator.language||'en').toLowerCase().startsWith('zh')?'zh':'en'; const t=copy[lang];
+      const [inventory,setInventory]=useState(null),[selected,setSelected]=useState(null),[target,setTarget]=useState(null),[file,setFile]=useState(null),[draft,setDraft]=useState(''),[query,setQuery]=useState(''),[results,setResults]=useState(null),[tab,setTab]=useState('edit'),[panel,setPanel]=useState(''),[templates,setTemplates]=useState([]),[models,setModels]=useState([]),[model,setModel]=useState(''),[prompt,setPrompt]=useState(''),[suggestion,setSuggestion]=useState(null),[templateName,setTemplateName]=useState(''),[templateBody,setTemplateBody]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
+      const editor=useRef(null);
+      const button=(label,fn,kind='',disabled=false)=>h('button',{type:'button',className:'am-btn '+kind,onClick:fn,disabled},label);
+      const load=async()=>{setBusy(true);setError('');try{const [items,ts,ms]=await Promise.all([api('list'),api('templates'),api('models').catch(()=>[])]);setInventory(items);setTemplates(ts);setModels(ms);if(ms.length&&!model)setModel(ms[0].provider+'::'+ms[0].model)}catch(e){setError(e.message)}finally{setBusy(false)}};
+      useEffect(()=>{load()},[]);
+      useEffect(()=>{let active=true;const q=query.trim();if(!q){setResults(null);return}const timer=setTimeout(()=>api('search',{query:q}).then(x=>{if(active)setResults(x)}).catch(e=>{if(active)setError(e.message)}),250);return()=>{active=false;clearTimeout(timer)}},[query]);
+      const open=async next=>{setBusy(true);setError('');setNotice('');setPanel('');setSuggestion(null);try{const value=await api('read',{target:next});setTarget(next);setFile(value);setDraft(value.content);setTab('edit')}catch(e){setError(e.message)}finally{setBusy(false)}};
+      const save=async()=>{if(tab!=='diff'){setTab('diff');return}setBusy(true);setError('');try{const value=await api('save',{target,content:draft,expectedVersion:file.version});setFile(value);setNotice(t.saved);setTab('edit');await load()}catch(e){setError(e.message.includes('Conflict')?t.conflict:e.message)}finally{setBusy(false)}};
+      const saveTemplate=async()=>{try{await api('template/save',{name:templateName,content:templateBody});setTemplates(await api('templates'));setTemplateName('');setTemplateBody('')}catch(e){setError(e.message)}};
+      const removeTemplate=async id=>{try{await api('template/delete',{id});setTemplates(await api('templates'))}catch(e){setError(e.message)}};
+      const generate=async()=>{const [provider,chosen]=model.split('::');setBusy(true);setError('');try{const result=await api('suggest',{target,draft,prompt,provider,model:chosen});setSuggestion(result.content);setTab('diff')}catch(e){setError(e.message)}finally{setBusy(false)}};
+      const rows=inventory?.workspaces||[];
+      const picked=rows.find(w=>w.id===selected);
+      const globalPicked=selected==='global';
+      const fileRows=globalPicked?inventory?.global.map(g=>({relativePath:g.path,target:g.target,exists:g.exists})):(picked?.files||[]);
+      const renderTemplates = () => h('div', null,
+        h('div', { className:'am-titlebar' }, h('h2', null, t.templates)),
+        ...templates.map(item => h('div', { className:'am-file', key:item.id },
+          h('div', null, h('strong', null, item.name), h('div', { className:'am-path' }, item.content.slice(0,100))),
+          button(t.remove, () => removeTemplate(item.id)))),
+        h('div', { className:'am-panel' },
+          h('input', { className:'am-field', placeholder:t.templateName, value:templateName, onChange:e=>setTemplateName(e.target.value) }),
+          h('textarea', { className:'am-text', placeholder:t.templateBody, value:templateBody, onChange:e=>setTemplateBody(e.target.value) }),
+          button(t.addTemplate, saveTemplate, 'primary', !templateName.trim())));
+      return h('div',{className:'am'},h('style',null,css),
+        h('header',{className:'am-head'},h('div',null,h('h1',null,t.title),h('div',{className:'am-sub'},t.sub)),button(t.refresh,load,'',busy)),
+        h('div',{className:'am-main '+(selected||target?'detail':'')},
+          h('aside',{className:'am-rail'},h('input',{className:'am-search',type:'search',placeholder:t.search,value:query,onChange:e=>setQuery(e.target.value),'aria-label':t.search}),
+            h('div',{className:'am-label'},t.global),h('button',{className:'am-row '+(selected==='global'?'on':''),onClick:()=>{setSelected('global');setTarget(null)}},t.global),
+            h('div',{className:'am-label'},`Workspaces · ${rows.length}`),rows.length?rows.map(w=>h('button',{key:w.id,className:'am-row '+(selected===w.id?'on':''),onClick:()=>{setSelected(w.id);setTarget(null)}},h('div',null,w.title||w.path),h('div',{className:'am-path',title:w.path},w.path))):h('div',{className:'am-empty'},busy?t.loading:t.noProjects),
+            h('div',{className:'am-label'},t.templates),h('button',{className:'am-row '+(selected==='templates'?'on':''),onClick:()=>{setSelected('templates');setTarget(null)}},t.templates)),
+          h('main',{className:'am-work'},
+            h('div',{className:'am-actions am-back'},button(t.back,()=>{if(target)setTarget(null);else setSelected(null)})),
+            error&&h('div',{className:'am-alert',role:'alert'},error),notice&&h('div',{className:'am-alert',role:'status'},notice),
+            selected==='templates'?renderTemplates():
+            target? h('div',{className:'am-editor'},h('div',{className:'am-titlebar'},h('div',null,h('h2',null,target.scope==='global'?inventory.global[target.index].path:target.relativePath),h('div',{className:'am-path'},picked?.path||t.global)),h('div',{className:'am-actions'},button(t.edit,()=>setTab('edit')),button(t.preview,()=>setTab('preview')),button(t.diff,()=>setTab('diff')))),
+              tab==='edit'?h('textarea',{ref:editor,className:'am-text',value:draft,onChange:e=>setDraft(e.target.value),'aria-label':t.edit,spellCheck:false}):tab==='preview'?h('div',{className:'am-preview'},md(draft)):h('div',{className:'am-diff'},h('div',null,h('strong',null,t.original),h('pre',null,file?.content||'')),h('div',null,h('strong',null,t.proposed),h('pre',null,suggestion??draft))),
+              h('div',{className:'am-actions'},button(busy?t.saving:(tab==='diff'?t.save:t.diff),save,'primary',busy||draft===file?.content||suggestion!==null),button(t.templates,()=>setPanel(panel==='template'?'':'template')),button(t.ai,()=>setPanel(panel==='ai'?'':'ai'),'',!models.length)),
+              panel==='template'&&h('div',{className:'am-panel'},h('strong',null,t.templates),h('select',{value:templateBody,onChange:e=>setTemplateBody(e.target.value)},h('option',{value:''},t.templates),templates.map(x=>h('option',{key:x.id,value:x.content},x.name))),h('div',{className:'am-actions'},button(t.replace,()=>{setDraft(templateBody);setPanel('');setTab('diff')},'',!templateBody),button(t.insert,()=>{const pos=editor.current?.selectionStart??draft.length;setDraft(draft.slice(0,pos)+templateBody+draft.slice(pos));setPanel('');setTab('diff')},'',!templateBody))),
+              panel==='ai'&&h('div',{className:'am-panel'},h('strong',null,t.ai),h('div',{className:'am-muted'},t.sent),h('label',null,t.model,h('select',{value:model,onChange:e=>setModel(e.target.value)},models.map(m=>h('option',{key:m.provider+'::'+m.model,value:m.provider+'::'+m.model},m.name+' · '+m.provider)))),h('textarea',{className:'am-text',style:{minHeight:90},placeholder:t.prompt,value:prompt,onChange:e=>setPrompt(e.target.value)}),button(t.generate,generate,'primary',busy||!prompt.trim())),
+              suggestion!==null&&h('div',{className:'am-panel'},h('strong',null,t.diff),h('div',{className:'am-actions'},button(t.accept,()=>{setDraft(suggestion);setSuggestion(null);setPanel('');setTab('diff')},'primary'),button(t.discard,()=>{setSuggestion(null);setTab('edit')})))):
+            selected?h('div',null,h('div',{className:'am-titlebar'},h('div',null,h('h2',null,globalPicked?t.global:picked?.title),h('div',{className:'am-path'},picked?.path||'')),!globalPicked&&button(t.newRoot,()=>open({scope:'workspace',workspaceId:selected,relativePath:'AGENTS.md'}))),fileRows?.length?h('div',{className:'am-files'},fileRows.map(f=>h('button',{className:'am-file am-row',key:f.relativePath,onClick:()=>open(f.target)},h('div',null,h('strong',null,f.relativePath),!f.exists&&h('div',{className:'am-path'},t.missing)),h('span',null,'›')))):h('div',{className:'am-empty'},t.noFiles)):
+            h('div',{className:'am-empty'},query&&results?results.length?results.map(r=>h('button',{className:'am-row',key:(r.workspaceId||'global')+r.relativePath,onClick:()=>{setSelected(r.workspaceId||'global');open(r.target)}},r.title+' / '+r.relativePath)):t.empty:t.choose),
+            selected&&query&&results?.length>0&&h('div',{className:'am-panel'},h('strong',null,`${results.length} results`),results.map(r=>h('button',{className:'am-row',key:(r.workspaceId||'global')+r.relativePath,onClick:()=>{setSelected(r.workspaceId||'global');open(r.target)}},r.title+' / '+r.relativePath)))
+          )
+        )
+      );
+    }
+    return { inject:['slots'], apply(ctx){ ctx.slots.inject('main',()=>ctx.slots.register({name:'main',key:'dsh-agentsmd-manager'},Page));ctx.slots.inject('sidebar.panellist',()=>ctx.slots.register({name:'sidebar.panellist',id:'dsh-agentsmd-manager',order:31,label:'AGENTS.md'},Icon)); } };
+  }
+});
