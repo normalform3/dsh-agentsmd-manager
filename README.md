@@ -22,7 +22,7 @@ Requires Node.js 20 or later. Run `npm run check` for JavaScript syntax and focu
 
 The plugin scans only registered workspaces. It skips common dependency and build directories and bounds traversal to 20 levels and 20,000 directories per workspace. A workspace scan error is shown with that workspace; other workspaces remain available. The two global paths come from `DSH_HOME` (default `~/.dsh`) and `DSH_AGENTS_HOME` (default `~/.agents`). Templates are stored in `DSH_HOME/agentsmd-manager/templates.json`.
 
-The model receives the current draft, the user's request, and available root README and supported project manifest files (up to 16,384 characters each). The UI identifies these inputs before generation. The model's output is a proposal and never writes a file automatically. Do not use the AI action for confidential project instructions unless the configured model is authorized to receive them.
+The model receives the current draft, the user's request, and available root README and supported project manifest files (up to 16,384 characters each). The UI identifies these inputs before generation. The model's output is a proposal and never writes a file automatically. Each independent model call is recorded before dispatch in `DSH_HOME/agentsmd-manager/requests/` with the exact prompt and context; the file is private to the local user. The record is updated with the result or failure. The AI panel offers cancellation. Do not use the AI action for confidential project instructions unless the configured model is authorized to receive them.
 
 This version does not bulk write files, move instruction files, or change DSH's instruction loading behavior.
 
