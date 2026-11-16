@@ -39,6 +39,24 @@ async function readBounded(file, max = 16_384) {
   catch (error) { if (error.code === 'ENOENT') return null; throw error; }
 }
 
+export async function collectSuggestion(llm, options, signal, journal) {
+  const settle = await journal.start(options);
+  let output = ''; let finish;
+  try {
+    for await (const chunk of llm.stream({ ...options, signal })) {
+      if (chunk.type === 'text-delta') output += chunk.text;
+      if (chunk.type === 'finish') finish = chunk;
+    }
+    await settle(finish?.reason?.kind || 'unknown', { content: output, finish });
+  } catch (error) {
+    await settle(signal?.aborted ? 'aborted' : 'error', { message: error.message });
+    throw error;
+  }
+  if (finish?.reason?.kind !== 'stop') throw new Error(finish?.reason?.failure?.message || 'Model did not return a complete suggestion');
+  if (!output.trim()) throw new Error('Model did not return a suggestion');
+  return output.trim();
+}
+
 export function apply(ctx) {
   const workspaceRows = () => (ctx.get('workspaceRegistry')?.list() || []).map(w => ({ id: String(w.id), path: w.path, title: w.title || path.basename(w.path) }));
   const store = new AgentsStore({ workspaces: workspaceRows, home, agentsHome: process.env.DSH_AGENTS_HOME || path.join(os.homedir(), '.agents') });
@@ -85,21 +103,7 @@ export function apply(ctx) {
       const input = `User request:\n${b.prompt}\n\nCurrent AGENTS.md:\n<current>\n${b.draft}\n</current>\n\nProject context:${context}`;
       const messages = [{ role: 'user', content: [{ type: 'text', text: input }] }];
       const options = { provider: b.provider, model: b.model, system, messages, maxTokens: 8192 };
-      const settle = await journal.start(options);
-      let output = ''; let finish;
-      try {
-        for await (const chunk of llm.stream({ ...options, signal })) {
-          if (chunk.type === 'text-delta') output += chunk.text;
-          if (chunk.type === 'finish') finish = chunk;
-        }
-        await settle(finish?.reason?.kind || 'unknown', { content: output, finish });
-      } catch (error) {
-        await settle(signal?.aborted ? 'aborted' : 'error', { message: error.message });
-        throw error;
-      }
-      if (finish?.reason?.kind !== 'stop') throw new Error(finish?.reason?.failure?.message || 'Model did not return a complete suggestion');
-      if (!output.trim()) throw new Error('Model did not return a suggestion');
-      return { content: output.trim(), sent: context ? ['AGENTS.md', 'README/manifest'] : ['AGENTS.md'] };
+      return { content: await collectSuggestion(llm, options, signal, journal), sent: context ? ['AGENTS.md', 'README/manifest'] : ['AGENTS.md'] };
     },
   };
   for (const [name, handler] of Object.entries(handlers)) {
