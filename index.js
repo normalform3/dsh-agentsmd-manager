@@ -45,6 +45,14 @@ export function apply(ctx) {
   const handlers = {
     list: () => store.list(),
     search: b => store.search(b.query),
+    preview: async b => {
+      const inventory = await store.list();
+      const files = b.scope === 'global' ? inventory.global.filter(file => file.exists).map(file => ({ label: file.path, target: file.target }))
+        : inventory.workspaces.find(workspace => workspace.id === String(b.workspaceId))?.files.map(file => ({ label: file.relativePath, target: file.target }));
+      if (!files) throw new Error('Unknown workspace');
+      if (files.length > 100) throw new Error('Too many files for batch preview');
+      return Promise.all(files.map(async file => ({ label: file.label, ...(await store.read(file.target)) })));
+    },
     read: b => store.read(b.target),
     save: b => store.save(b.target, b.content, b.expectedVersion),
     templates: () => templates.list(),

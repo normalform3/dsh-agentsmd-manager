@@ -6,6 +6,7 @@ A focused DeepSeek Harness Desktop plugin for finding and editing `AGENTS.md` fi
 
 - List root and nested `AGENTS.md` files in registered workspaces, plus the two DSH global instruction files.
 - Search workspace names, paths, and file contents.
+- Preview the contents of up to 100 files together in a workspace or the global section.
 - Edit Markdown, preview it, review the original and draft side by side, and save one file at a time. Saves check the file version and use an atomic replacement.
 - Create and manage local templates. Applying a template changes only the editor draft.
 - Request a single model suggestion using a configured DSH provider. The suggestion must be accepted into the draft and saved manually.
