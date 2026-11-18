@@ -161,6 +161,6 @@ window.__ModuleLoader__.load({
         )
       );
     }
-    return { inject:['slots'], apply(ctx){ ctx.slots.inject('main',()=>ctx.slots.register({name:'main',key:'dsh-agentsmd-manager'},Page));ctx.slots.inject('sidebar.panellist',()=>ctx.slots.register({name:'sidebar.panellist',id:'dsh-agentsmd-manager',order:31,label:'AGENTS.md'},Icon)); } };
+    return { inject:['slots'], apply(ctx){ ctx.slots.inject('main',()=>ctx.slots.register({name:'main',key:'dsh-agentsmd-manager'},Page));ctx.slots.inject('sidebar.panellist',()=>ctx.slots.register({name:'sidebar.panellist',id:'dsh-agentsmd-manager',order:31,label:'AGENTS 指令'},Icon)); } };
   }
 });

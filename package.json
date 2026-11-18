@@ -1,5 +1,6 @@
 {
   "name": "dsh-agentsmd-manager",
+  "description": "Manage AGENTS.md across DSH workspaces from one place: search, preview, edit, use templates, and review AI suggestions.",
   "version": "0.1.0",
   "type": "module",
   "main": "index.js",
