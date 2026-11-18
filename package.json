@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "exports": { ".": "./index.js", "./client": "./client.js" },
-  "files": ["index.js", "client.js", "lib", "cordis.patch.yml", "README.md"],
+  "files": ["index.js", "client.js", "lib", "cordis.patch.yml", "README.md", "README.en.md"],
   "scripts": { "test": "node --test", "check": "node --check index.js && node --check client.js && node --test" },
   "repository": "https://github.com/normalform3/dsh-agentsmd-manager",
   "license": "MIT",
