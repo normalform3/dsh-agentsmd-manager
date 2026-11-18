@@ -12,6 +12,16 @@ A focused DeepSeek Harness Desktop plugin for finding and editing `AGENTS.md` fi
 - Request a single model suggestion using a configured DSH provider. The suggestion must be accepted into the draft and saved manually.
 - Chinese and English interface, with narrow-screen navigation. The file editor has a back button, and leaving an unsaved file or template draft requires confirmation.
 
+## Screenshots
+
+These screenshots render the plugin's web client with fictional workspaces and files; the `/demo/...` paths are example data.
+
+| Workspace files | Markdown preview |
+| --- | --- |
+| ![Workspace file list](assets/screenshots/workspaces.png) | ![Markdown preview](assets/screenshots/preview.png) |
+| Review changes | Template editor |
+| ![Side-by-side change review](assets/screenshots/review-changes.png) | ![Template editor](assets/screenshots/templates.png) |
+
 ## Local installation
 
 In DeepSeek Harness Desktop, open the plugin manager, choose the option to install from a local directory, and select this repository's root directory. The plugin is a source bundle; no build step or npm install is required. Restart or reload the Desktop app if its plugin manager requests it. Use the `desktop` profile.
