@@ -9,7 +9,7 @@ const PREFIX = '/api/dsh-agentsmd-manager/';
 const MARKER = 'x-dsh-agentsmd-manager';
 const home = process.env.DSH_HOME || path.join(os.homedir(), '.dsh');
 
-export const inject = ['webServer'];
+export const inject = ['webServer', 'connection'];
 
 export function allowedRequest(req) {
   const host = req.headers?.host;
@@ -108,6 +108,8 @@ export function apply(ctx) {
   };
   for (const [name, handler] of Object.entries(handlers)) {
     ctx.effect(() => ctx.webServer.register({ kind: 'exact', path: PREFIX + name, handler: async (req, res) => {
+      const refused = ctx.connection.requestRejection(req);
+      if (refused !== undefined) { send(res, refused, { ok: false, error: refused === 401 ? 'Unauthorized' : 'Forbidden' }); return; }
       if (!allowedRequest(req)) { send(res, 403, { ok: false, error: 'Forbidden' }); return; }
       const controller = new AbortController();
       res.on('close', () => controller.abort());
